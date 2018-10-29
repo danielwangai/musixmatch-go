@@ -8,6 +8,34 @@ import (
 	"strconv"
 )
 
+// Get an album
+func GetAlbum(albumId int) (*AlbumResponse, error) {
+	albumUrl := BaseURL + "album.get"
+	u, err := url.Parse(albumUrl)
+	if err != nil {
+		return nil, err
+	}
+	q, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return nil, err
+	}
+	q.Add("apikey", APIKEY)
+	q.Add("album_id", strconv.Itoa(albumId))
+	u.RawQuery = q.Encode()
+	resp, err := http.Get(u.String())
+	if err != nil {
+		return nil, err
+	}
+	var albums AlbumResponse
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	json.Unmarshal(data, &albums)
+	return &albums, nil
+}
+
 // get tracks from an album
 func GetAlbumTracks(albumId, page, limit int) (*TrackResponse, error) {
 	albumTracksUrl := BaseURL + "album.tracks.get"
