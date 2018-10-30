@@ -89,9 +89,23 @@ type AlbumHeader struct {
 
 type AlbumMessage struct {
 	Header AlbumHeader `json:"header"`
-	Body AlbumBody `json:"body"`
+	Body   AlbumBody   `json:"body"`
 }
 
 type AlbumResponse struct {
 	Message AlbumMessage `json:"message"`
+}
+
+// tracking.url.get
+type TrackingURL struct {
+	URL string `json:"url"`
+}
+
+type TrackingURLMessage struct {
+	Header AlbumHeader `json:"header"`
+	Body   TrackingURL `json:"body"`
+}
+
+type TrackingURLResponse struct {
+	Message TrackingURLMessage `json:"message"`
 }
