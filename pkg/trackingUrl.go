@@ -8,7 +8,7 @@ import (
 )
 
 // GetTrackingUrl fetches tracking url details
-// source - https://developer.musixmatch.com/documentation/api-reference/tracking-url-get
+// Reference - https://developer.musixmatch.com/documentation/api-reference/tracking-url-get
 // Required Authentication
 // currently works with format=json
 // TODO - XML

@@ -1,5 +1,37 @@
 package pkg
 
+// Artist
+type ArtistDetail struct {
+	ArtistID        int      `json:"artist_id"`
+	ArtistMbID      string   `json:"artist_mbid"`
+	ArtistName      string   `json:"artist_name"`
+	ArtistAliasList []string `json:"artist_alias_list"`
+	ArtistRating    int      `json:"artist_rating"`
+	UpdatedTime     string   `json:"updated_time"`
+}
+
+type Artist struct {
+	Artist ArtistDetail `json:"artist"`
+}
+
+type ArtistList struct {
+	ArtistList []Artist `json:"artist_list"`
+}
+
+type ArtistHeader struct {
+	StatusCode  int     `json:"status_code"`
+	ExecuteTime float64 `json:"execute_time"`
+}
+
+type ArtistMessage struct {
+	Header ArtistHeader `json:"header"`
+	Body   ArtistList   `json:"body"`
+}
+
+type ArtistResponse struct {
+	Message ArtistMessage `json:"message"`
+}
+
 // Track fields
 type TrackDetail struct {
 	TrackId              int    `json:"track_id"`
@@ -21,7 +53,7 @@ type TrackDetail struct {
 
 type Header struct {
 	StatusCode  int     `json:"status_code"`
-	ExecuteTime float32 `json:"execute_time"`
+	ExecuteTime float64 `json:"execute_time"`
 	Available   int     `json:"available"`
 }
 
