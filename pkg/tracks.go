@@ -9,6 +9,76 @@ import (
 	"strconv"
 )
 
+// models
+type TrackMusicGenreDetails struct {
+	Genre
+	MusicGenreVanity string `json:"music_genre_vanity"`
+}
+
+type TrackMusicGenre struct {
+	MusicGenre TrackMusicGenreDetails `json:"music_genre"`
+}
+
+type TrackMusicGenreList struct {
+	MusicGenreList []TrackMusicGenre `json:"music_genre_list"`
+}
+
+type TrackMusicDetail struct {
+	TrackId                 int                 `json:"track_id"`
+	TrackMbID               string              `json:"track_mbid"`
+	TrackIsrc               int                 `json:"track_isrc"`
+	TrackSpotifyID          string              `json:"track_spotify_id"`
+	TrackSoundcloudID       string              `json:"track_soundcloud_id"`
+	TrackXboxMusicID        string              `json:"track_xboxmusic_id"`
+	TrackName               string              `json:"track_name"`
+	TrackNameTransitionList []string            `json:"track_name_translation_list"` // TODO - verify data type
+	TrackRating             string              `json:"track_rating"`
+	TrackLength             int                 `json:"track_length"`
+	CommonTrackID           int                 `json:"commontrack_id"`
+	Instrumental            int                 `json:"instrumental"`
+	Explicit                int                 `json:"explicit"`
+	HasLyrics               int                 `json:"has_lyrics"`
+	HasLyricsCrowd          int                 `json:"has_lyrics_crowd"`
+	HasSubtitles            int                 `json:"has_subtitles"`
+	HasRichSync             int                 `json:"has_richsync"`
+	NumFavourites           int                 `json:"num_favourite"`
+	LyricsID                int                 `json:"lyrics_id"`
+	SubtitleID              int                 `json:"subtitle_id"`
+	AlbumID                 int                 `json:"album_id"`
+	AlbumName               string              `json:"album_name"`
+	ArtistID                int                 `json:"artist_id"`
+	ArtistMbID              string              `json:"artist_mbid"`
+	ArtistName              string              `json:"artist_name"`
+	AlbumCoverArt100X100    string              `json:"album_coverart_100x100"`
+	AlbumCoverArt350X350    string              `json:"album_coverart_350x350"`
+	AlbumCoverArt500X500    string              `json:"album_coverart_500x500"`
+	AlbumCoverArt800X800    string              `json:"album_coverart_800x800"`
+	TrackShareURL           string              `json:"track_share_url"`
+	TrackEditURL            string              `json:"track_edit_url"`
+	CommonTrackVanityID     string              `json:"commontrack_vanity_id"`
+	Restricted              int                 `json:"restricted"`
+	FirstReleaseDate        string              `json:"first_release_date"`
+	UpdateTime              string              `json:"updated_time"`
+	PrimaryGenre            TrackMusicGenreList `json:"primary_genre"`
+	SecondaryGenre          TrackMusicGenreList `json:"secondary_genre"`
+}
+type TrackMusic struct {
+	Track TrackMusicDetail `json:"track"`
+}
+
+type TrackMusicList struct {
+	TrackList []TrackMusic `json:"track_list"`
+}
+
+type TrackMusicMessage struct {
+	Header Header         `json:"header"`
+	Body   TrackMusicList `json:"body"`
+}
+
+type TrackMusicResponse struct {
+	Message TrackMusicMessage `json:"message"`
+}
+
 // GetTopTracks fetches a list of top trakcs of a given country
 // Reference https://developer.musixmatch.com/documentation/api-reference/track-chart-get
 // Requires Authentication
@@ -45,7 +115,7 @@ func GetTopTracks(country, chartName string, page, pageSize, hasLyrics int) (*Tr
 	q.Add("page_size", strconv.Itoa(pageSize))
 	q.Add("country", country)
 	q.Add("f_has_lyrics", strconv.Itoa(hasLyrics))
-	q.Add("apikey", "aa4afda40b0f535b659af399decb21e4")
+	q.Add("apikey", APIKEY)
 	u.RawQuery = q.Encode()
 	resp, err := http.Get(u.String())
 	if err != nil {
