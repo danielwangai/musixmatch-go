@@ -10,9 +10,10 @@ import (
 )
 
 // models
+// chart.tracks.get
 type TrackMusicGenreDetails struct {
 	Genre
-	MusicGenreVanity string `json:"music_genre_vanity"`
+	// MusicGenreVanity string `json:"music_genre_vanity"`
 }
 
 type TrackMusicGenre struct {
@@ -79,11 +80,27 @@ type TrackMusicResponse struct {
 	Message TrackMusicMessage `json:"message"`
 }
 
+// end chart.tracks.get
+// track.search
+type TrackSearchHeader struct {
+	Header
+	Available int `json:"available"`
+}
+
+type TrackSearchMessage struct {
+	Header TrackSearchHeader `json:"header"`
+	Body   TrackMusicList    `json:"body"`
+}
+
+type TrackSearchResponse struct {
+	Message TrackSearchMessage `json:"message"`
+}
+
+// end track.search
+
 // GetTopTracks fetches a list of top trakcs of a given country
 // Reference https://developer.musixmatch.com/documentation/api-reference/track-chart-get
 // Requires Authentication
-// currently works with format=json
-// TODO - XML
 func GetTopTracks(country, chartName string, page, pageSize, hasLyrics int) (*TrackMusicResponse, error) {
 	if country == "" {
 		// default country is US
@@ -128,4 +145,51 @@ func GetTopTracks(country, chartName string, page, pageSize, hasLyrics int) (*Tr
 	}
 	json.Unmarshal(data, &trackMusicResp)
 	return &trackMusicResp, nil
+}
+
+// GetTopTracks fetches a list of top trakcs of a given country
+// Reference https://developer.musixmatch.com/documentation/api-reference/track-chart-get
+// Requires Authentication
+// currently works with format=json
+// TODO - XML
+// sample URL - http://api.musixmatch.com/ws/1.1/track.search?q_artist=justin bieber&page_size=3&page=1&s_track_rating=desc&apikey=APIKEY
+func SearchTracks(artist, order string, page, pageSize int) (*TrackSearchResponse, error) {
+	if artist == "" {
+		return nil, errors.New("Provide artist name to search.")
+	}
+	if order == "" || !Contains(order, []string{"desc", "asc"}) {
+		// set to default
+		order = "desc"
+	}
+	if page <= 0 || pageSize <= 0 {
+		// set default values
+		page = 1
+		pageSize = 1
+	}
+	searchUrl := BaseURL + "track.search"
+	u, err := url.Parse(searchUrl)
+	if err != nil {
+		return nil, err
+	}
+	q, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return nil, err
+	}
+	q.Add("q_artist", artist)
+	q.Add("s_track_rating", order)
+	q.Add("page", strconv.Itoa(page))
+	q.Add("page_size", strconv.Itoa(pageSize))
+	q.Add("apikey", APIKEY)
+	u.RawQuery = q.Encode()
+	resp, err := http.Get(u.String())
+	if err != nil {
+		return nil, err
+	}
+	var trackSearch TrackSearchResponse
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	json.Unmarshal(data, &trackSearch)
+	return &trackSearch, nil
 }
