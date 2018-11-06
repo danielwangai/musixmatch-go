@@ -13,7 +13,7 @@ import (
 // chart.tracks.get
 type TrackMusicGenreDetails struct {
 	Genre
-	// MusicGenreVanity string `json:"music_genre_vanity"`
+	MusicGenreVanity string `json:"music_genre_vanity"`
 }
 
 type TrackMusicGenre struct {
@@ -92,11 +92,23 @@ type TrackSearchMessage struct {
 	Body   TrackMusicList    `json:"body"`
 }
 
-type TrackSearchResponse struct {
+type TrackMusicResp struct {
 	Message TrackSearchMessage `json:"message"`
 }
 
 // end track.search
+
+// track.get
+type TrackMsg struct {
+	Header
+	Body TrackMusic `json:"body"`
+}
+
+type TrackResp struct {
+	Message TrackMsg `json:"message"`
+}
+
+// end track.get
 
 // GetTopTracks fetches a list of top trakcs of a given country
 // Reference https://developer.musixmatch.com/documentation/api-reference/track-chart-get
@@ -150,10 +162,8 @@ func GetTopTracks(country, chartName string, page, pageSize, hasLyrics int) (*Tr
 // GetTopTracks fetches a list of top trakcs of a given country
 // Reference https://developer.musixmatch.com/documentation/api-reference/track-chart-get
 // Requires Authentication
-// currently works with format=json
-// TODO - XML
 // sample URL - http://api.musixmatch.com/ws/1.1/track.search?q_artist=justin bieber&page_size=3&page=1&s_track_rating=desc&apikey=APIKEY
-func SearchTracks(artist, order string, page, pageSize int) (*TrackSearchResponse, error) {
+func SearchTracks(artist, order string, page, pageSize int) (*TrackMusicResp, error) {
 	if artist == "" {
 		return nil, errors.New("Provide artist name to search.")
 	}
@@ -185,11 +195,71 @@ func SearchTracks(artist, order string, page, pageSize int) (*TrackSearchRespons
 	if err != nil {
 		return nil, err
 	}
-	var trackSearch TrackSearchResponse
+	var trackSearch TrackMusicResp
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 	json.Unmarshal(data, &trackSearch)
 	return &trackSearch, nil
+}
+
+// GetTopTracks fetches a list of top trakcs of a given country
+// Reference https://developer.musixmatch.com/documentation/api-reference/track-get
+// Requires Authentication
+// sample URL - http://api.musixmatch.com/ws/1.1/track.get?commontrack_id=5920049&apikey=APIKEY
+func GetTrackByCommonTrackID(ctID int) (*TrackResp, error) {
+	trackUrl := BaseURL + "track.get"
+	u, err := url.Parse(trackUrl)
+	if err != nil {
+		return nil, err
+	}
+	q, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return nil, err
+	}
+	q.Add("commontrack_id", strconv.Itoa(ctID))
+	q.Add("apikey", APIKEY)
+	u.RawQuery = q.Encode()
+	resp, err := http.Get(u.String())
+	if err != nil {
+		return nil, err
+	}
+	var track TrackResp
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	json.Unmarshal(data, &track)
+	return &track, nil
+}
+
+// GetTopTracks fetches a list of top trakcs of a given country
+// Reference https://developer.musixmatch.com/documentation/api-reference/track-get
+// Requires Authentication
+// sample URL - http://api.musixmatch.com/ws/1.1/track.get?track_id=15445219&apikey=APIKEY
+func GetTrackByID(trackId int) (*TrackResp, error) {
+	trackUrl := BaseURL + "track.get"
+	u, err := url.Parse(trackUrl)
+	if err != nil {
+		return nil, err
+	}
+	q, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return nil, err
+	}
+	q.Add("track_id", strconv.Itoa(trackId))
+	q.Add("apikey", APIKEY)
+	u.RawQuery = q.Encode()
+	resp, err := http.Get(u.String())
+	if err != nil {
+		return nil, err
+	}
+	var track TrackResp
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	json.Unmarshal(data, &track)
+	return &track, nil
 }
